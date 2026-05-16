@@ -180,13 +180,14 @@
   <section id="quote" class="py-20 px-4">
     <div class="max-w-2xl mx-auto card p-8 md:p-10">
       <h2 class="text-3xl font-black text-blue-900 mb-2">Request Your Drywall Repair Quote</h2>
-      <p class="text-slate-500 mb-8">Use the form below, then text photos to <strong>(602) 881-1676</strong> for the fastest quote.</p>
-      <form id="bidForm" class="space-y-6">
+      <p class="text-slate-500 mb-8">Use the form below to send your request and photos. We also keep the text-message path as backup for fastest response.</p>
+      <form id="bidForm" class="space-y-6" enctype="multipart/form-data">
         <div class="grid md:grid-cols-2 gap-6">
           <div><label class="block text-sm font-black mb-2" for="name">Full Name</label><input id="name" name="name" type="text" class="w-full border-2 border-slate-100 bg-slate-50 rounded-xl p-4 outline-none focus:border-blue-900" placeholder="Your name" required></div>
           <div><label class="block text-sm font-black mb-2" for="phone">Phone Number</label><input id="phone" name="phone" type="tel" class="w-full border-2 border-slate-100 bg-slate-50 rounded-xl p-4 outline-none focus:border-blue-900" placeholder="(602) 000-0000" required></div>
+          <div><label class="block text-sm font-black mb-2" for="email">Email Address</label><input id="email" name="email" type="email" class="w-full border-2 border-slate-100 bg-slate-50 rounded-xl p-4 outline-none focus:border-blue-900" placeholder="you@example.com" required></div>
+          <div><label class="block text-sm font-black mb-2" for="zip">ZIP Code</label><input id="zip" name="zip" type="text" class="w-full border-2 border-slate-100 bg-slate-50 rounded-xl p-4 outline-none focus:border-blue-900" placeholder="e.g. 85032" required></div>
         </div>
-        <div><label class="block text-sm font-black mb-2" for="zip">ZIP Code</label><input id="zip" name="zip" type="text" class="w-full border-2 border-slate-100 bg-slate-50 rounded-xl p-4 outline-none focus:border-blue-900" placeholder="e.g. 85032" required></div>
         <div><label class="block text-sm font-black mb-2" for="damage">Describe the Damage</label><textarea id="damage" name="damage" class="w-full border-2 border-slate-100 bg-slate-50 rounded-xl p-4 outline-none focus:border-blue-900" rows="4" placeholder="How many holes? Wall or ceiling? What caused it?"></textarea></div>
         <div>
           <label class="block text-sm font-black mb-2" for="photos">Upload Photos</label>
@@ -197,10 +198,10 @@
             <span id="photoCount" class="block text-sm font-bold text-blue-900 mt-3">No photos selected yet</span>
           </label>
           <input id="photos" name="photos" type="file" accept="image/*" multiple class="sr-only">
-          <p class="text-xs text-slate-500 mt-2">Your phone may still ask you to attach the selected photos when the text message opens.</p>
+          <p class="text-xs text-slate-500 mt-2">Photos upload with the request. If anything fails, the site will open a backup text message.</p>
         </div>
-        <div class="bg-amber-50 p-6 rounded-2xl border-2 border-amber-100 flex items-start gap-4"><div class="text-amber-600 text-2xl mt-1"><i class="fa-solid fa-bolt-lightning"></i></div><div><p class="font-black text-amber-900 text-sm">For the fastest response:</p><p class="text-amber-800 text-sm">Upload or attach 3 photos with a dollar bill or tape measure beside the damage.</p></div></div>
-        <button type="submit" class="w-full btn-primary text-xl shadow-xl py-5">Prepare My Text Message</button>
+        <div class="bg-amber-50 p-6 rounded-2xl border-2 border-amber-100 flex items-start gap-4"><div class="text-amber-600 text-2xl mt-1"><i class="fa-solid fa-bolt-lightning"></i></div><div><p class="font-black text-amber-900 text-sm">For the fastest response:</p><p class="text-amber-800 text-sm">Upload 3 photos with a dollar bill or tape measure beside the damage.</p></div></div>
+        <button type="submit" class="w-full btn-primary text-xl shadow-xl py-5">Send My Quote Request</button>
       </form>
       <div id="successMsg" class="hidden mt-6 p-6 bg-green-100 text-green-800 rounded-2xl text-center font-bold"></div>
     </div>
@@ -221,24 +222,46 @@
     const businessPhone = '16028811676';
     const photosInput = document.getElementById('photos');
     const photoCount = document.getElementById('photoCount');
+    const form = document.getElementById('bidForm');
+    const submitButton = form.querySelector('button[type="submit"]');
 
     photosInput.addEventListener('change', function() {
       const count = this.files.length;
       photoCount.textContent = count === 0 ? 'No photos selected yet' : `${count} photo${count === 1 ? '' : 's'} selected`;
     });
 
-    document.getElementById('bidForm').addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
       e.preventDefault();
       const data = new FormData(this);
-      const photoNote = photosInput.files.length
-        ? `%0APhotos: ${photosInput.files.length} selected — I will attach them to this text.`
-        : '%0APhotos: I will attach photos next.';
-      const message = `Hi Seamless Patch, I need a drywall quote.%0AName: ${encodeURIComponent(data.get('name'))}%0APhone: ${encodeURIComponent(data.get('phone'))}%0AZIP: ${encodeURIComponent(data.get('zip'))}%0ADamage: ${encodeURIComponent(data.get('damage') || '')}${photoNote}`;
+      data.append('page_url', window.location.href);
+      data.append('user_agent', navigator.userAgent);
+
+      const message = `Hi Seamless Patch, I need a drywall quote.%0AName: ${encodeURIComponent(data.get('name'))}%0APhone: ${encodeURIComponent(data.get('phone'))}%0AEmail: ${encodeURIComponent(data.get('email'))}%0AZIP: ${encodeURIComponent(data.get('zip'))}%0ADamage: ${encodeURIComponent(data.get('damage') || '')}%0APhotos: ${photosInput.files.length ? photosInput.files.length + ' selected/uploaded' : 'I will send photos next.'}`;
       const smsUrl = `sms:${businessPhone}?&body=${message}`;
       const success = document.getElementById('successMsg');
-      success.innerHTML = '<i class="fa-solid fa-check-circle mr-2"></i> Next step: your text app should open. Attach the selected damage photos and send.';
-      success.classList.remove('hidden');
-      window.location.href = smsUrl;
+      const originalButtonText = submitButton.textContent;
+
+      submitButton.disabled = true;
+      submitButton.textContent = 'Saving Your Request...';
+
+      try {
+        const response = await fetch('/api/quote', { method: 'POST', body: data });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.ok) throw new Error(result.error || 'Quote request failed');
+
+        success.className = 'mt-6 p-6 bg-green-100 text-green-800 rounded-2xl text-center font-bold';
+        success.innerHTML = '<i class="fa-solid fa-check-circle mr-2"></i> Quote request received. We saved your details and photos.';
+        form.reset();
+        photoCount.textContent = 'No photos selected yet';
+      } catch (error) {
+        console.error('Quote request failed:', error);
+        success.className = 'mt-6 p-6 bg-amber-100 text-amber-900 rounded-2xl text-center font-bold';
+        success.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2"></i> Online save had an issue, so your text app is opening as backup. Please send the text and attach photos there.';
+        window.location.href = smsUrl;
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+      }
     });
   </script>
 </body>
