@@ -19,3 +19,9 @@
 
 - Sean approved the deploy. Merged `autofix/seamless-seo-index-20260807` into main (merge cc47a5e) and pushed; Vercel deployed in ~20s.
 - Public readback verified: `robots.txt` sitemap line and `sitemap.xml` `<loc>` both serve `https://www.seamlesspatch.com/`; homepage serves the canonical and `og:url` tags. Apex 307s to www, www returns 200.
+
+## 2026-08-11 - Google Search Console property + sitemap
+
+- Added `https://www.seamlesspatch.com/` as a URL-prefix property in Sean's Search Console (seanmichael67@gmail.com) and verified ownership via the `google-site-verification` meta tag in index.html (do not remove it).
+- Note: Vercel `cleanUrls` 308-redirects `/google64cda59d857c9f4a.html`, so the HTML-file method was abandoned; the file remains in the repo but the meta tag is the active verification.
+- Submitted `sitemap.xml`; Google read it immediately: Status Success, 1 page discovered.
