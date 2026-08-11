@@ -14,3 +14,8 @@
 - Added `scripts/check_seo_index.py`, `scripts/test_check_seo_index.py`, and `npm run check:seo` so the canonical-host/index contract fails closed without network access.
 - Verification: regression tests 2/2 passed; local contract 13/13 passed; Python compilation and `git diff --check` passed.
 - Boundary: local-only; no push or deployment. Public files remain stale until an approved deploy.
+
+## 2026-08-11 - SEO index fix deployed
+
+- Sean approved the deploy. Merged `autofix/seamless-seo-index-20260807` into main (merge cc47a5e) and pushed; Vercel deployed in ~20s.
+- Public readback verified: `robots.txt` sitemap line and `sitemap.xml` `<loc>` both serve `https://www.seamlesspatch.com/`; homepage serves the canonical and `og:url` tags. Apex 307s to www, www returns 200.
