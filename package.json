@@ -4,7 +4,9 @@
   "private": true,
   "description": "Seamless Patch static website with Vercel quote intake API",
   "scripts": {
-    "check:seo": "python3 scripts/check_seo_index.py"
+    "check:seo": "python3 scripts/check_seo_index.py",
+    "check:quote": "python3 scripts/check_quote_failsafe.py",
+    "test": "cd scripts && python3 -m unittest discover -p \"test_*.py\""
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8",
